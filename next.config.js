@@ -28,12 +28,25 @@ const nextConfig = {
     ],
   },
   
-  // Disable webpack cache for Cloudflare Pages
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.cache = false
+  // Completely disable webpack cache for Cloudflare Pages
+  webpack: (config, { isServer, dev }) => {
+    // Disable all caching for production builds
+    if (!dev) {
+      config.cache = false;
     }
-    return config
+    
+    // Disable filesystem cache
+    if (config.cache && typeof config.cache === 'object') {
+      config.cache = false;
+    }
+    
+    return config;
+  },
+  
+  // Disable experimental features that might create large files
+  experimental: {
+    // Disable webpack build worker
+    webpackBuildWorker: false,
   },
 }
 
