@@ -1,5 +1,8 @@
 # Cloudflare Pages Static Export Redirects
 
+# Handle apple-touch-icon redirect to favicon
+/apple-touch-icon.png /favicon.svg 200
+
 # Handle root domain
 / /index.html 200
 
