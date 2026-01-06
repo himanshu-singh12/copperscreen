@@ -17,13 +17,23 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
-  // Exclude large files for Cloudflare Pages
+  // Exclude large files and cache for Cloudflare Pages size limits
   outputFileTracingExcludes: {
     '*': [
       'node_modules/@swc/core-linux-x64-gnu',
       'node_modules/@swc/core-linux-x64-musl',
       'node_modules/@esbuild/linux-x64',
+      '.next/cache/**/*',
+      'cache/**/*',
     ],
+  },
+  
+  // Disable webpack cache for Cloudflare Pages
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.cache = false
+    }
+    return config
   },
 }
 

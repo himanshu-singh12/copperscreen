@@ -12,6 +12,8 @@
 # next.js
 /.next/
 /out/
+/.next/cache/
+/cache/
 
 # production
 /build
@@ -43,3 +45,8 @@ next-env.d.ts
 
 # OS
 Thumbs.db
+
+# Cloudflare Pages cache exclusions
+.next/cache/**/*
+cache/**/*
+*.pack

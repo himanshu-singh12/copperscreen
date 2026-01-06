@@ -22,6 +22,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:cloudflare": "next build && rm -rf .next/cache",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
@@ -29,7 +30,7 @@
     "build:analyze": "ANALYZE=true next build",
     "preview": "next build && next start",
     "clean": "rmdir /s /q .next out 2>nul || echo \"Clean completed\"",
-    "deploy:production": "npm run lint && npm run type-check && npm run build",
+    "deploy:production": "npm run lint && npm run type-check && npm run build:cloudflare",
     "postbuild": "echo 'Build completed successfully! Ready for Cloudflare Pages deployment.'"
   },
   "dependencies": {
