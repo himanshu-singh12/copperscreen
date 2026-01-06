@@ -1,17 +1,23 @@
-# Cloudflare Pages Headers Configuration
+# Cloudflare Pages Headers Configuration - Fix Raw HTML Issue
 
-# Global security headers
+# Force HTML MIME type for all HTML files
+*.html
+  Content-Type: text/html; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+# Force HTML MIME type for index files
+/
+  Content-Type: text/html; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+# Force HTML MIME type for all routes
 /*
+  Content-Type: text/html; charset=utf-8
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-
-# HTML files - ensure proper MIME type and no caching for dynamic content
-*.html
-  Content-Type: text/html; charset=utf-8
-  Cache-Control: public, max-age=3600
 
 # CSS files - ensure proper MIME type
 *.css
@@ -23,8 +29,13 @@
   Content-Type: application/javascript; charset=utf-8
   Cache-Control: public, max-age=31536000, immutable
 
+# JSON files
+*.json
+  Content-Type: application/json; charset=utf-8
+
 # Admin routes - no indexing and no caching
 /admin/*
+  Content-Type: text/html; charset=utf-8
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
