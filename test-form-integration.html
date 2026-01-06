@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Contact Form Integration</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: #B87333; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #A0632B; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .loading { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>Test Contact Form Integration</h1>
+    <p>This is a simple test form to verify your Google Apps Script integration is working.</p>
+    
+    <form id="testForm">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="company">Company:</label>
+            <input type="text" id="company" name="company">
+        </div>
+        
+        <div class="form-group">
+            <label for="phone">Phone:</label>
+            <input type="tel" id="phone" name="phone">
+        </div>
+        
+        <div class="form-group">
+            <label for="service">Service:</label>
+            <select id="service" name="service" required>
+                <option value="">Select a service</option>
+                <option value="SEO & Organic Growth">SEO & Organic Growth</option>
+                <option value="AI Agents for Enterprise">AI Agents for Enterprise</option>
+                <option value="Web CRO & Conversion Optimization">Web CRO & Conversion Optimization</option>
+                <option value="Full-Stack Web Development">Full-Stack Web Development</option>
+                <option value="eCommerce & SaaS Solutions">eCommerce & SaaS Solutions</option>
+                <option value="Digital Strategy & Consultancy">Digital Strategy & Consultancy</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="budget">Budget:</label>
+            <select id="budget" name="budget">
+                <option value="">Select budget range</option>
+                <option value="$10K - $25K">$10K - $25K</option>
+                <option value="$25K - $50K">$25K - $50K</option>
+                <option value="$50K - $100K">$50K - $100K</option>
+                <option value="$100K - $250K">$100K - $250K</option>
+                <option value="$250K+">$250K+</option>
+                <option value="Let's discuss">Let's discuss</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" rows="4" required></textarea>
+        </div>
+        
+        <button type="submit" id="submitBtn">Send Test Message</button>
+    </form>
+    
+    <div id="status"></div>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const statusDiv = document.getElementById('status');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Show loading state
+            statusDiv.innerHTML = '<div class="status loading">Sending test message...</div>';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+            
+            // Collect form data
+            const formData = new FormData(this);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                company: formData.get('company'),
+                phone: formData.get('phone'),
+                service: formData.get('service'),
+                budget: formData.get('budget'),
+                message: formData.get('message'),
+                timestamp: new Date().toISOString(),
+                source: 'Test Form'
+            };
+            
+            try {
+                // Your Google Apps Script URL
+                const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbya7Js0rhqX5_D9GMKAobqIA3Au4MUFxHkZYorwmUule60j7rqrU1ePceybN7asoh_q/exec';
+                
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                // Since we're using no-cors, we can't read the response
+                // But if no error is thrown, we assume success
+                statusDiv.innerHTML = '<div class="status success">✅ Test message sent successfully! Check your Google Sheet and email.</div>';
+                
+                // Reset form
+                this.reset();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.innerHTML = '<div class="status error">❌ Error sending message. Check console for details.</div>';
+            } finally {
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Test Message';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# Cloudflare Pages Redirects Configuration
+
+# Redirect old URLs if needed
+# /old-page /new-page 301
+
+# SPA fallback for client-side routing
+# /* /index.html 200
+
+# Admin area protection (optional - can be handled by middleware)
+# /admin/* /admin/index.html 200
