@@ -140,7 +140,8 @@ export function MegaMenu({ activeItem, onClose }: MegaMenuProps) {
 
   return (
     <div
-      className="absolute top-full left-0 right-0 bg-white shadow-2xl border-t border-gray-100 opacity-100 transform translate-y-0 transition-all duration-200"
+      className="absolute top-full left-0 right-0 bg-white shadow-2xl border-t border-gray-100 opacity-100 transform translate-y-0 transition-all duration-300 z-50"
+      onMouseEnter={() => {}} // Keep menu open on hover
       onMouseLeave={onClose}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -156,7 +157,9 @@ export function MegaMenu({ activeItem, onClose }: MegaMenuProps) {
                     href={service.href}
                     className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
                   >
-                    <service.icon className="w-6 h-6 text-copper-700 mt-1 group-hover:text-copper-600" />
+                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-copper-50 to-copper-100 rounded-lg flex items-center justify-center">
+                      <service.icon className="w-5 h-5 text-copper-700 group-hover:text-copper-600" />
+                    </div>
                     <div>
                       <h4 className="font-medium text-charcoal group-hover:text-copper-700">
                         {service.title}
@@ -184,9 +187,11 @@ export function MegaMenu({ activeItem, onClose }: MegaMenuProps) {
                     href={agent.href}
                     className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
                   >
-                    <agent.icon className="w-6 h-6 text-copper-700 mt-1 group-hover:text-copper-600" />
+                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
+                      <agent.icon className="w-5 h-5 text-blue-700 group-hover:text-blue-600" />
+                    </div>
                     <div>
-                      <h4 className="font-medium text-charcoal group-hover:text-copper-700">
+                      <h4 className="font-medium text-charcoal group-hover:text-blue-700">
                         {agent.title}
                       </h4>
                       <p className="text-sm text-gray-600 mt-1">{agent.description}</p>
@@ -196,7 +201,7 @@ export function MegaMenu({ activeItem, onClose }: MegaMenuProps) {
               </div>
               <Link
                 href="/ai-agents"
-                className="inline-flex items-center text-copper-700 hover:text-copper-600 font-medium mt-4"
+                className="inline-flex items-center text-blue-700 hover:text-blue-600 font-medium mt-4"
               >
                 + 4 More Industries →
               </Link>
@@ -211,8 +216,9 @@ export function MegaMenu({ activeItem, onClose }: MegaMenuProps) {
                   href={servicesContent.featured.caseStudy.href}
                   className="block bg-gradient-to-br from-copper-50 to-copper-100 p-4 rounded-lg hover:shadow-md transition-shadow"
                 >
-                  <div className="aspect-video bg-copper-200 rounded-lg mb-3 flex items-center justify-center">
-                    <span className="text-copper-700 font-medium">Case Study</span>
+                  <div className="aspect-video bg-copper-200 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-copper-400/20 to-copper-600/20"></div>
+                    <TrendingUp className="w-8 h-8 text-copper-700 relative z-10" />
                   </div>
                   <h4 className="font-semibold text-charcoal mb-2">
                     {servicesContent.featured.caseStudy.title}
@@ -227,9 +233,14 @@ export function MegaMenu({ activeItem, onClose }: MegaMenuProps) {
                   href={servicesContent.featured.resource.href}
                   className="block bg-gradient-to-br from-electric/10 to-electric/20 p-4 rounded-lg hover:shadow-md transition-shadow"
                 >
-                  <h4 className="font-semibold text-charcoal mb-2">
-                    {servicesContent.featured.resource.title}
-                  </h4>
+                  <div className="flex items-center mb-2">
+                    <div className="w-8 h-8 bg-electric/20 rounded-lg flex items-center justify-center mr-3">
+                      <Search className="w-4 h-4 text-electric" />
+                    </div>
+                    <h4 className="font-semibold text-charcoal">
+                      {servicesContent.featured.resource.title}
+                    </h4>
+                  </div>
                   <p className="text-sm text-gray-600">
                     {servicesContent.featured.resource.description}
                   </p>
@@ -254,15 +265,21 @@ export function MegaMenu({ activeItem, onClose }: MegaMenuProps) {
                   <Link
                     key={industry.title}
                     href={industry.href}
-                    className="p-4 border border-gray-200 rounded-lg hover:border-copper-300 hover:shadow-md transition-all group"
+                    className="group p-4 border border-gray-200 rounded-lg hover:border-copper-300 hover:shadow-md transition-all"
                   >
-                    <industry.icon className="w-8 h-8 text-copper-700 mb-3 group-hover:text-copper-600" />
+                    <div className="relative mb-3 h-12 w-12 bg-gradient-to-br from-copper-50 to-copper-100 rounded-lg flex items-center justify-center">
+                      <industry.icon className="w-6 h-6 text-copper-700 group-hover:text-copper-600" />
+                      <div className="absolute inset-0 bg-copper-gradient opacity-0 group-hover:opacity-10 rounded-lg transition-opacity"></div>
+                    </div>
                     <h4 className="font-semibold text-charcoal mb-2 group-hover:text-copper-700">
                       {industry.title}
                     </h4>
                     <ul className="text-sm text-gray-600 space-y-1">
                       {industry.agents.map((agent) => (
-                        <li key={agent}>• {agent}</li>
+                        <li key={agent} className="flex items-center">
+                          <div className="w-1 h-1 bg-copper-500 rounded-full mr-2 flex-shrink-0"></div>
+                          <span>{agent}</span>
+                        </li>
                       ))}
                     </ul>
                   </Link>
@@ -274,15 +291,33 @@ export function MegaMenu({ activeItem, onClose }: MegaMenuProps) {
             <div className="col-span-2">
               <h3 className="text-lg font-semibold text-charcoal mb-4">Quick Actions</h3>
               <div className="space-y-4">
-                <button className="w-full bg-copper-gradient text-white px-4 py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow">
-                  ROI Calculator
-                </button>
-                <button className="w-full border border-copper-300 text-copper-700 px-4 py-3 rounded-lg font-semibold hover:bg-copper-50 transition-colors">
-                  Book AI Demo
-                </button>
+                {/* AI Demo Card */}
+                <div className="bg-gradient-to-br from-copper-50 to-copper-100 p-4 rounded-lg">
+                  <div className="flex items-center justify-center w-12 h-12 bg-copper-gradient rounded-lg mb-3">
+                    <Bot className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="font-semibold text-charcoal mb-2">AI Demo</h4>
+                  <p className="text-sm text-gray-600 mb-3">See AI agents in action</p>
+                  <button className="w-full bg-copper-gradient text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-shadow text-sm">
+                    Watch Demo
+                  </button>
+                </div>
+
+                {/* ROI Calculator Card */}
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                  <div className="flex items-center justify-center w-12 h-12 bg-blue-gradient rounded-lg mb-3">
+                    <TrendingUp className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="font-semibold text-charcoal mb-2">ROI Calculator</h4>
+                  <p className="text-sm text-gray-600 mb-3">Calculate potential savings</p>
+                  <button className="w-full border border-blue-300 text-blue-700 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors text-sm">
+                    Calculate ROI
+                  </button>
+                </div>
+
                 <Link
                   href="/ai-agents/case-studies"
-                  className="block text-center text-copper-700 hover:text-copper-600 font-medium"
+                  className="block text-center text-copper-700 hover:text-copper-600 font-medium text-sm"
                 >
                   View AI Case Studies →
                 </Link>

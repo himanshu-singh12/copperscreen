@@ -291,21 +291,48 @@ function testGetLeads() {
 }
 ```
 
-## Step-by-Step Implementation Guide
+## 🚀 Google Apps Script Deployment for Cloudflare Pages
 
-### Step 1: Set Up Google Apps Script
+### Important: You MUST deploy the updated Google Apps Script separately
 
-1. **Open Google Apps Script**
-   - Go to [script.google.com](https://script.google.com)
-   - Click "New Project"
+The Google Apps Script runs on Google's servers, not on Cloudflare Pages. Here's what you need to do:
 
-2. **Replace Default Code**
-   - Delete the default `myFunction()` code
-   - Paste the complete script code above
+### Step 1: Deploy Updated Google Apps Script
+1. Go to [script.google.com](https://script.google.com)
+2. Open your existing project or create a new one
+3. Replace the existing code with the updated code from this file
+4. **Deploy as Web App**:
+   - Click "Deploy" → "New deployment"
+   - Choose "Web app" as the type
+   - Set **Execute as**: "Me"
+   - Set **Who has access**: "Anyone"
+   - Click "Deploy"
+5. **Copy the new Web App URL** (it will be different from the old one)
 
-3. **Configure the Script**
-   - Replace `ADMIN_EMAIL` with your actual email address
-   - The `SHEET_ID` is already set to your provided sheet ID
+### Step 2: Update Cloudflare Pages Environment Variables
+In your Cloudflare Pages project settings, update:
+```env
+NEXT_PUBLIC_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/YOUR_NEW_SCRIPT_ID/exec
+```
+
+### Step 3: Test the Integration
+1. Test form submission on your website
+2. Check if data appears in Google Sheets
+3. Test admin dashboard lead retrieval
+4. Verify all functionality works
+
+### Why This is Required:
+- Google Apps Script is a separate service from your website
+- It provides the backend API for form submission and lead retrieval
+- The script URL changes each time you deploy
+- Cloudflare Pages needs the correct URL to communicate with the script
+
+### Current Script Features:
+- ✅ **POST**: Form submission to Google Sheets
+- ✅ **GET**: Lead retrieval for admin dashboard (`?action=getLeads`)
+- ✅ **CORS**: Proper cross-origin headers
+- ✅ **Error Handling**: Robust error responses
+- ✅ **Email Notifications**: Admin email alerts
 
 ### Step 2: Set Up Google Sheet Headers
 

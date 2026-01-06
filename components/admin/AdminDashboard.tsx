@@ -17,7 +17,6 @@ import {
   Clock,
   Eye
 } from 'lucide-react'
-import Image from 'next/image'
 
 interface Lead {
   id: string
@@ -166,17 +165,6 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4 min-w-0">
-              <div className="flex-shrink-0">
-                <Image
-                  src="/images/logo-new.png"
-                  alt="Copper Screen Logo"
-                  width={120}
-                  height={38}
-                  className="h-8 w-auto"
-                  priority
-                />
-              </div>
-              <div className="h-6 w-px bg-gray-300 flex-shrink-0"></div>
               <h1 className="text-lg font-semibold text-charcoal truncate">Admin Dashboard</h1>
             </div>
             <button

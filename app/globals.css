@@ -109,6 +109,11 @@ select:focus-visible {
   background-clip: text;
 }
 
+/* Blue gradient for AI elements */
+.bg-blue-gradient {
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+}
+
 /* Parallax container */
 .parallax-container {
   overflow-x: hidden;

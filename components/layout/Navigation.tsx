@@ -82,7 +82,10 @@ export function Navigation() {
                   key={item.name}
                   className="relative"
                   onMouseEnter={() => item.hasDropdown && setActiveDropdown(item.name)}
-                  onMouseLeave={() => setActiveDropdown(null)}
+                  onMouseLeave={() => {
+                    // Add delay before closing to allow clicking
+                    setTimeout(() => setActiveDropdown(null), 300)
+                  }}
                 >
                   <Link
                     href={item.href}
@@ -113,10 +116,18 @@ export function Navigation() {
 
         {/* Mega Menu */}
         {activeDropdown && (
-          <MegaMenu 
-            activeItem={activeDropdown} 
-            onClose={() => setActiveDropdown(null)} 
-          />
+          <div
+            onMouseEnter={() => setActiveDropdown(activeDropdown)}
+            onMouseLeave={() => {
+              // Add delay before closing to allow clicking
+              setTimeout(() => setActiveDropdown(null), 200)
+            }}
+          >
+            <MegaMenu 
+              activeItem={activeDropdown} 
+              onClose={() => setActiveDropdown(null)} 
+            />
+          </div>
         )}
       </nav>
 
