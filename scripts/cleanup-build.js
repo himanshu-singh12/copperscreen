@@ -25,7 +25,7 @@ function deleteFile(filePath) {
   }
 }
 
-function deleteLargeFiles(dir, maxSize = 10 * 1024 * 1024) { // 10MB default
+function deleteLargeFiles(dir, maxSize = 5 * 1024 * 1024) { // 5MB limit for Cloudflare
   if (!fs.existsSync(dir)) return;
   
   try {
@@ -35,11 +35,17 @@ function deleteLargeFiles(dir, maxSize = 10 * 1024 * 1024) { // 10MB default
       const fullPath = path.join(dir, item.name);
       
       if (item.isDirectory()) {
+        // Skip cache directories entirely
+        if (item.name === 'cache' || item.name === 'webpack') {
+          deleteDirectory(fullPath);
+          continue;
+        }
         deleteLargeFiles(fullPath, maxSize);
       } else if (item.isFile()) {
         try {
           const stats = fs.statSync(fullPath);
           if (stats.size > maxSize) {
+            console.log(`🗑️ Deleting large file: ${fullPath} (${(stats.size / 1024 / 1024).toFixed(2)}MB)`);
             deleteFile(fullPath);
           }
         } catch (err) {
@@ -52,24 +58,47 @@ function deleteLargeFiles(dir, maxSize = 10 * 1024 * 1024) { // 10MB default
   }
 }
 
-console.log('🧹 Cleaning up build artifacts for Cloudflare Pages...');
+console.log('🧹 Aggressive cleanup for Cloudflare Pages 25MB limit...');
 
-// Delete all cache directories
-deleteDirectory('.next/cache');
-deleteDirectory('cache');
-deleteDirectory('node_modules/.cache');
+// Delete all cache directories completely
+const cacheDirectories = [
+  '.next/cache',
+  '.next/standalone',
+  '.next/server/chunks',
+  'cache',
+  'node_modules/.cache',
+  '.cache',
+  'dist/cache'
+];
 
-// Delete specific large webpack files
-deleteLargeFiles('.next', 5 * 1024 * 1024); // 5MB limit
+cacheDirectories.forEach(deleteDirectory);
 
-// Delete specific problematic files
+// Delete specific large webpack files that cause issues
 const problematicFiles = [
   '.next/cache/webpack/server-production/0.pack',
   '.next/cache/webpack/client-production/0.pack',
   '.next/cache/webpack/server-development/0.pack',
-  '.next/cache/webpack/client-development/0.pack'
+  '.next/cache/webpack/client-development/0.pack',
+  '.next/server/chunks/webpack-runtime.js',
+  '.next/server/chunks/webpack-api-runtime.js'
 ];
 
 problematicFiles.forEach(deleteFile);
 
-console.log('✨ Cleanup completed! Build should now be under 25MB limit.');
+// Scan for any remaining large files
+console.log('🔍 Scanning for large files...');
+deleteLargeFiles('.next', 5 * 1024 * 1024); // 5MB limit
+
+// Check final build size
+if (fs.existsSync('.next')) {
+  try {
+    const { execSync } = require('child_process');
+    const sizeOutput = execSync('du -sh .next 2>/dev/null || echo "Size check failed"', { encoding: 'utf8' });
+    console.log(`📊 Final .next directory size: ${sizeOutput.trim()}`);
+  } catch (err) {
+    console.log('📊 Could not determine directory size');
+  }
+}
+
+console.log('✨ Aggressive cleanup completed! Build should be well under 25MB limit.');
+console.log('🚀 Ready for Cloudflare Pages deployment!');

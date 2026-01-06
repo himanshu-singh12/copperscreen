@@ -1,13 +1,53 @@
-# Cloudflare Pages Redirects Configuration
+# Cloudflare Pages Static Export Redirects
 
-# Redirect trailing slashes for consistency
-/admin /admin/ 301
-/about /about/ 301
-/services /services/ 301
-/ai-agents /ai-agents/ 301
-/case-studies /case-studies/ 301
-/blog /blog/ 301
-/contact /contact/ 301
+# Handle root domain
+/ /index.html 200
 
-# Fallback for 404 pages - use 200 status for SPA routing
-/* /404 200
+# Handle static pages with trailing slashes
+/about/ /about/index.html 200
+/services/ /services/index.html 200
+/ai-agents/ /ai-agents/index.html 200
+/case-studies/ /case-studies/index.html 200
+/blog/ /blog/index.html 200
+/contact/ /contact/index.html 200
+/admin/ /admin/index.html 200
+
+# Handle pages without trailing slashes
+/about /about/index.html 200
+/services /services/index.html 200
+/ai-agents /ai-agents/index.html 200
+/case-studies /case-studies/index.html 200
+/blog /blog/index.html 200
+/contact /contact/index.html 200
+/admin /admin/index.html 200
+
+# Handle dynamic blog routes
+/blog/* /blog/[slug]/index.html 200
+
+# Handle service pages
+/services/seo /services/seo/index.html 200
+/services/cro /services/cro/index.html 200
+/services/development /services/development/index.html 200
+
+# Handle AI agent pages
+/ai-agents/retail /ai-agents/retail/index.html 200
+/ai-agents/healthcare /ai-agents/healthcare/index.html 200
+/ai-agents/finance /ai-agents/finance/index.html 200
+/ai-agents/legal /ai-agents/legal/index.html 200
+/ai-agents/real-estate /ai-agents/real-estate/index.html 200
+/ai-agents/manufacturing /ai-agents/manufacturing/index.html 200
+/ai-agents/education /ai-agents/education/index.html 200
+/ai-agents/hospitality /ai-agents/hospitality/index.html 200
+/ai-agents/case-studies /ai-agents/case-studies/index.html 200
+
+# Handle case study pages
+/case-studies/techcorp-growth /case-studies/techcorp-growth/index.html 200
+
+# Handle resource pages
+/resources/seo-trends-2024 /resources/seo-trends-2024/index.html 200
+
+# Handle admin diagnostics
+/admin/diagnostics /admin/diagnostics/index.html 200
+
+# Fallback for any unmatched routes
+/* /index.html 200

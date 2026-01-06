@@ -78,48 +78,49 @@ export function ContactForm() {
     })
 
     try {
-      // Submit to our API route
-      const response = await fetch('/api/contact', {
+      // Submit directly to Google Apps Script (static export compatible)
+      const googleScriptUrl = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL
+      
+      if (!googleScriptUrl) {
+        throw new Error('Google Script URL not configured')
+      }
+
+      const formDataToSubmit = new FormData()
+      formDataToSubmit.append('name', formData.name)
+      formDataToSubmit.append('email', formData.email)
+      formDataToSubmit.append('company', formData.company || '')
+      formDataToSubmit.append('phone', formData.phone || '')
+      formDataToSubmit.append('service', formData.service)
+      formDataToSubmit.append('budget', formData.budget || '')
+      formDataToSubmit.append('message', formData.message)
+      formDataToSubmit.append('timestamp', new Date().toISOString())
+      formDataToSubmit.append('source', 'Website Contact Form')
+
+      const response = await fetch(googleScriptUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          company: formData.company,
-          phone: formData.phone,
-          service: formData.service,
-          budget: formData.budget,
-          message: formData.message,
-          timestamp: new Date().toISOString(),
-          source: 'Website Contact Form'
-        })
+        body: formDataToSubmit,
+        mode: 'no-cors' // Required for Google Apps Script
       })
 
-      const result = await response.json()
+      // Since we're using no-cors, we can't read the response
+      // Assume success if no error is thrown
+      setStatus({
+        type: 'success',
+        message: 'Thank you! We\'ve received your message and will get back to you within 24 hours.'
+      })
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        company: '',
+        phone: '',
+        service: '',
+        budget: '',
+        message: ''
+      })
 
-      if (result.success) {
-        setStatus({
-          type: 'success',
-          message: result.message || 'Thank you! We\'ve received your message and will get back to you within 24 hours.'
-        })
-        
-        // Reset form
-        setFormData({
-          name: '',
-          email: '',
-          company: '',
-          phone: '',
-          service: '',
-          budget: '',
-          message: ''
-        })
-
-        Logger.success('Form submitted successfully via API')
-      } else {
-        throw new Error(result.error || 'Form submission failed')
-      }
+      Logger.success('Form submitted successfully to Google Apps Script')
     } catch (error) {
       Logger.error('Form submission failed', error)
       setStatus({

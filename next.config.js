@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Remove static export for dynamic Next.js build on Cloudflare Pages
-  // output: 'export', // Commented out for dynamic build
+  // Use static export for Cloudflare Pages (no cache files)
+  output: 'export',
   
-  // Keep image optimization disabled for Cloudflare compatibility
+  // Disable image optimization for static export
   images: {
     unoptimized: true,
   },
@@ -11,13 +11,49 @@ const nextConfig = {
   // Configure trailing slash for better compatibility
   trailingSlash: true,
   
+  // Disable all caching for Cloudflare Pages
+  experimental: {
+    webpackBuildWorker: false,
+  },
+  
   // Optimize for production
   compiler: {
     // Remove console.log in production
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
-  // Exclude large files and cache for Cloudflare Pages size limits
+  // Webpack configuration to prevent large cache files
+  webpack: (config, { dev, isServer }) => {
+    // Disable webpack cache completely for production builds
+    if (!dev) {
+      config.cache = false
+    }
+    
+    // Optimize bundle size
+    config.optimization = {
+      ...config.optimization,
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          default: {
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
+          },
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: -10,
+            chunks: 'all',
+          },
+        },
+      },
+    }
+    
+    return config
+  },
+  
+  // Exclude large files for Cloudflare Pages size limits
   outputFileTracingExcludes: {
     '*': [
       'node_modules/@swc/core-linux-x64-gnu',
@@ -25,28 +61,9 @@ const nextConfig = {
       'node_modules/@esbuild/linux-x64',
       '.next/cache/**/*',
       'cache/**/*',
+      '**/.git/**/*',
+      '**/node_modules/**/*',
     ],
-  },
-  
-  // Completely disable webpack cache for Cloudflare Pages
-  webpack: (config, { isServer, dev }) => {
-    // Disable all caching for production builds
-    if (!dev) {
-      config.cache = false;
-    }
-    
-    // Disable filesystem cache
-    if (config.cache && typeof config.cache === 'object') {
-      config.cache = false;
-    }
-    
-    return config;
-  },
-  
-  // Disable experimental features that might create large files
-  experimental: {
-    // Disable webpack build worker
-    webpackBuildWorker: false,
   },
 }
 

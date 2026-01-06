@@ -46,7 +46,12 @@ next-env.d.ts
 # OS
 Thumbs.db
 
-# Cloudflare Pages cache exclusions
+# Cloudflare Pages cache exclusions - CRITICAL for 25MB limit
 .next/cache/**/*
 cache/**/*
 *.pack
+.next/server/chunks/webpack-*.js
+.next/standalone/**/*
+**/.cache/**/*
+**/webpack/**/*
+**/*.pack

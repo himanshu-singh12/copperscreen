@@ -8,6 +8,11 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
 
+# HTML files - ensure proper MIME type and no caching for dynamic content
+*.html
+  Content-Type: text/html; charset=utf-8
+  Cache-Control: public, max-age=3600
+
 # CSS files - ensure proper MIME type
 *.css
   Content-Type: text/css; charset=utf-8
@@ -21,12 +26,6 @@
 # Admin routes - no indexing and no caching
 /admin/*
   X-Robots-Tag: noindex, nofollow
-  Cache-Control: no-cache, no-store, must-revalidate
-  Pragma: no-cache
-  Expires: 0
-
-# API routes - no caching
-/api/*
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
   Expires: 0
