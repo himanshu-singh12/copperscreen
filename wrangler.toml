@@ -1,0 +1,18 @@
+# Cloudflare Pages Configuration for Next.js
+name = "copperscreen"
+compatibility_date = "2024-01-01"
+
+# Enable Node.js compatibility for Edge Runtime functions
+compatibility_flags = ["nodejs_compat"]
+
+# Configure for Pages deployment
+pages_build_output_dir = ".vercel/output/static"
+
+# Environment variables (these will be overridden by Cloudflare Pages settings)
+[env.production]
+NODE_ENV = "production"
+
+# Wrangler configuration for local development (optional)
+[dev]
+compatibility_flags = ["nodejs_compat"]
+local_protocol = "https"
