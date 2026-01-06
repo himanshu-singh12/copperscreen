@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Configure for static export in production (Cloudflare Pages compatible)
-  output: 'export',
+  // Remove static export for dynamic Next.js build on Cloudflare Pages
+  // output: 'export', // Commented out for dynamic build
   
-  // Disable image optimization for static export
+  // Keep image optimization disabled for Cloudflare compatibility
   images: {
     unoptimized: true,
   },
@@ -17,7 +17,7 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
-  // Exclude large files for Cloudflare Pages (moved from experimental)
+  // Exclude large files for Cloudflare Pages
   outputFileTracingExcludes: {
     '*': [
       'node_modules/@swc/core-linux-x64-gnu',

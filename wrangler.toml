@@ -1,9 +1,12 @@
-# Cloudflare Pages Configuration for Next.js Static Export
+# Cloudflare Pages Configuration for Next.js
 name = "copperscreen"
 compatibility_date = "2024-01-01"
 
-# Configure for static export
-pages_build_output_dir = "out"
+# Configure for Next.js build (not static export)
+# pages_build_output_dir = ".next"  # Let Cloudflare auto-detect
+
+# Compatibility flags for Next.js
+compatibility_flags = ["nodejs_compat"]
 
 # Environment variables (these will be overridden by Cloudflare Pages settings)
 [env.production]

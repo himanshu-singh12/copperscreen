@@ -78,10 +78,9 @@ export function ContactForm() {
     })
 
     try {
-      // Submit directly to Google Apps Script (since we're using static export)
-      const response = await fetch('https://script.google.com/macros/s/AKfycbya7Js0rhqX5_D9GMKAobqIA3Au4MUFxHkZYorwmUule60j7rqrU1ePceybN7asoh_q/exec', {
+      // Submit to our API route
+      const response = await fetch('/api/contact', {
         method: 'POST',
-        mode: 'no-cors', // Required for Google Apps Script
         headers: {
           'Content-Type': 'application/json',
         },
@@ -94,29 +93,33 @@ export function ContactForm() {
           budget: formData.budget,
           message: formData.message,
           timestamp: new Date().toISOString(),
-          source: 'Static Website Contact Form'
+          source: 'Website Contact Form'
         })
       })
 
-      // Since we're using no-cors, we can't read the response
-      // Assume success if no error is thrown
-      setStatus({
-        type: 'success',
-        message: 'Thank you! We\'ve received your message and will get back to you within 24 hours.'
-      })
-      
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        company: '',
-        phone: '',
-        service: '',
-        budget: '',
-        message: ''
-      })
+      const result = await response.json()
 
-      Logger.success('Form submitted successfully to Google Apps Script')
+      if (result.success) {
+        setStatus({
+          type: 'success',
+          message: result.message || 'Thank you! We\'ve received your message and will get back to you within 24 hours.'
+        })
+        
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          company: '',
+          phone: '',
+          service: '',
+          budget: '',
+          message: ''
+        })
+
+        Logger.success('Form submitted successfully via API')
+      } else {
+        throw new Error(result.error || 'Form submission failed')
+      }
     } catch (error) {
       Logger.error('Form submission failed', error)
       setStatus({

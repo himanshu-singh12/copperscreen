@@ -21,22 +21,16 @@
   ],
   "scripts": {
     "dev": "next dev",
-    "build": "set NODE_ENV=production && next build",
-    "build:dev": "next build",
-    "cleanup-build": "node -e \"const fs = require('fs'); const path = require('path'); try { fs.rmSync(path.join('out', 'cache'), { recursive: true, force: true }); console.log('Cache cleanup completed'); } catch (e) { console.log('Cache cleanup completed (no cache found)'); }\"",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit",
-    "build:analyze": "set ANALYZE=true && npm run build:dev",
-    "build:production": "set NODE_ENV=production && npm run build",
-    "preview": "npm run build:dev && npm run start",
+    "build:analyze": "ANALYZE=true next build",
+    "preview": "next build && next start",
     "clean": "rmdir /s /q .next out 2>nul || echo \"Clean completed\"",
-    "test:build": "npm run build:dev && npm run start",
-    "deploy:preview": "npm run build && echo 'Ready for deployment preview'",
     "deploy:production": "npm run lint && npm run type-check && npm run build",
-    "postbuild": "echo 'Build completed successfully! Ready for Cloudflare Pages deployment.'",
-    "prepare:deploy": "npm run clean && npm run deploy:production"
+    "postbuild": "echo 'Build completed successfully! Ready for Cloudflare Pages deployment.'"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
