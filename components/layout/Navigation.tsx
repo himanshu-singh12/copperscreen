@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Menu, X, ChevronDown } from 'lucide-react'
@@ -11,6 +11,7 @@ export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -22,6 +23,31 @@ export function Navigation() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const handleMouseEnter = (itemName: string) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    setActiveDropdown(itemName)
+  }
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 300) // Increased timeout for better clickability
+  }
+
+  const handleMegaMenuEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+  }
+
+  const handleMegaMenuLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 200) // Delay before closing to allow cursor movement
+  }
 
   const navItems = [
     { name: 'Services', href: '/services', hasDropdown: true },
@@ -81,15 +107,12 @@ export function Navigation() {
                 <div
                   key={item.name}
                   className="relative"
-                  onMouseEnter={() => item.hasDropdown && setActiveDropdown(item.name)}
-                  onMouseLeave={() => {
-                    // Add delay before closing to allow clicking
-                    setTimeout(() => setActiveDropdown(null), 300)
-                  }}
+                  onMouseEnter={() => item.hasDropdown && handleMouseEnter(item.name)}
+                  onMouseLeave={handleMouseLeave}
                 >
                   <Link
                     href={item.href}
-                    className="flex items-center space-x-1 text-charcoal hover:text-copper-700 transition-colors duration-200 font-medium"
+                    className="flex items-center space-x-1 text-charcoal hover:text-copper-700 transition-colors duration-200 font-medium py-2"
                   >
                     <span>{item.name}</span>
                     {item.hasDropdown && (
@@ -116,18 +139,11 @@ export function Navigation() {
 
         {/* Mega Menu */}
         {activeDropdown && (
-          <div
-            onMouseEnter={() => setActiveDropdown(activeDropdown)}
-            onMouseLeave={() => {
-              // Add delay before closing to allow clicking
-              setTimeout(() => setActiveDropdown(null), 200)
-            }}
-          >
-            <MegaMenu 
-              activeItem={activeDropdown} 
-              onClose={() => setActiveDropdown(null)} 
-            />
-          </div>
+          <MegaMenu 
+            activeItem={activeDropdown} 
+            onMouseEnter={handleMegaMenuEnter}
+            onMouseLeave={handleMegaMenuLeave}
+          />
         )}
       </nav>
 

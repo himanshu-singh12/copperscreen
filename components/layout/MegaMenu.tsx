@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { 
   Search, 
   TrendingUp, 
@@ -19,10 +18,11 @@ import {
 
 interface MegaMenuProps {
   activeItem: string
-  onClose: () => void
+  onMouseEnter?: () => void
+  onMouseLeave?: () => void
 }
 
-export function MegaMenu({ activeItem, onClose }: MegaMenuProps) {
+export function MegaMenu({ activeItem, onMouseEnter, onMouseLeave }: MegaMenuProps) {
   const servicesContent = {
     coreServices: [
       {
@@ -141,8 +141,12 @@ export function MegaMenu({ activeItem, onClose }: MegaMenuProps) {
   return (
     <div
       className="absolute top-full left-0 right-0 bg-white shadow-2xl border-t border-gray-100 opacity-100 transform translate-y-0 transition-all duration-300 z-50"
-      onMouseEnter={() => {}} // Keep menu open on hover
-      onMouseLeave={onClose}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      style={{ 
+        marginTop: '-1px', // Eliminate gap between nav and mega menu
+        paddingTop: '1px'   // Add small padding to ensure smooth transition
+      }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeItem === 'Services' && (

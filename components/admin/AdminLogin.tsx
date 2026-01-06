@@ -1,11 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { Eye, EyeOff, Lock, User, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, Lock, User, AlertCircle, CheckCircle } from 'lucide-react'
 import Image from 'next/image'
+import { AdminAuthService, AdminSessionService } from '@/lib/admin-auth'
 
 interface AdminLoginProps {
-  onLogin: (success: boolean) => void
+  onLogin: (success: boolean, user?: any) => void
 }
 
 export function AdminLogin({ onLogin }: AdminLoginProps) {
@@ -28,20 +29,23 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
     setIsLoading(true)
     setError('')
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    if (
-      credentials.username === DEMO_CREDENTIALS.username &&
-      credentials.password === DEMO_CREDENTIALS.password
-    ) {
-      onLogin(true)
-    } else {
-      setError('Invalid username or password')
+    try {
+      const result = await AdminAuthService.authenticate(credentials.username, credentials.password)
+      
+      if (result.success && result.user) {
+        AdminSessionService.setSession(result.user)
+        onLogin(true, result.user)
+      } else {
+        setError(result.error || 'Invalid username or password')
+        onLogin(false)
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      setError('Login failed. Please try again.')
       onLogin(false)
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,6 +162,10 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
             <div className="text-sm text-copper-700 space-y-1">
               <div><strong>Username:</strong> admin</div>
               <div><strong>Password:</strong> copper2024</div>
+            </div>
+            <div className="mt-2 text-xs text-copper-600">
+              <CheckCircle className="w-3 h-3 inline mr-1" />
+              Additional admin users available in production
             </div>
           </div>
         </div>

@@ -382,6 +382,53 @@ html {
   80% { transform: translate(-2px, -2px); }
 }
 
+/* Mega menu hover improvements */
+.mega-menu-container {
+  position: relative;
+}
+
+.mega-menu-container::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  z-index: 49;
+}
+
+.mega-menu-dropdown {
+  position: absolute;
+  top: calc(100% - 1px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: white;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Ensure smooth hover transitions */
+.nav-item-with-dropdown {
+  position: relative;
+}
+
+.nav-item-with-dropdown:hover .mega-menu-dropdown {
+  display: block;
+}
+
+/* Prevent menu from disappearing during cursor movement */
+.mega-menu-bridge {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: transparent;
+  z-index: 49;
+}
+
 /* Responsive typography */
 @media (max-width: 640px) {
   html {

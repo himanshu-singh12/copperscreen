@@ -1,21 +1,17 @@
 User-agent: *
 Allow: /
 
-# Block admin area from search engines
+# Block admin areas
 Disallow: /admin/
-Disallow: /admin
-
-# Block API routes if any
 Disallow: /api/
 
-# Allow all other pages
-Allow: /
-Allow: /about/
-Allow: /services/
-Allow: /ai-agents/
-Allow: /case-studies/
-Allow: /blog/
-Allow: /contact/
+# Block development files
+Disallow: /_next/
+Disallow: /test-*
+
+# Allow important files
+Allow: /sitemap.xml
+Allow: /manifest.webmanifest
 
 # Sitemap location
-Sitemap: https://your-domain.pages.dev/sitemap.xml
+Sitemap: https://copperscreen.pages.dev/sitemap.xml

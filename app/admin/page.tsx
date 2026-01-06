@@ -3,30 +3,34 @@
 import { useState, useEffect } from 'react'
 import { AdminLogin } from '@/components/admin/AdminLogin'
 import { AdminDashboard } from '@/components/admin/AdminDashboard'
+import { AdminSessionService } from '@/lib/admin-auth'
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState<any>(null)
 
   useEffect(() => {
     // Check if user is already authenticated
-    const authToken = localStorage.getItem('admin_auth')
-    if (authToken === 'copper_admin_authenticated') {
+    const session = AdminSessionService.getSession()
+    if (session?.isValid) {
       setIsAuthenticated(true)
+      setCurrentUser(session.user)
     }
     setIsLoading(false)
   }, [])
 
-  const handleLogin = (success: boolean) => {
-    if (success) {
-      localStorage.setItem('admin_auth', 'copper_admin_authenticated')
+  const handleLogin = (success: boolean, user?: any) => {
+    if (success && user) {
       setIsAuthenticated(true)
+      setCurrentUser(user)
     }
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_auth')
+    AdminSessionService.clearSession()
     setIsAuthenticated(false)
+    setCurrentUser(null)
   }
 
   if (isLoading) {
@@ -42,7 +46,7 @@ export default function AdminPage() {
       {!isAuthenticated ? (
         <AdminLogin onLogin={handleLogin} />
       ) : (
-        <AdminDashboard onLogout={handleLogout} />
+        <AdminDashboard onLogout={handleLogout} currentUser={currentUser} />
       )}
     </div>
   )

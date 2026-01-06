@@ -1,105 +1,139 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { Calendar, Clock, ArrowRight, User } from 'lucide-react'
+import { Calendar, Clock, ArrowRight, User, Eye, TrendingUp } from 'lucide-react'
+import { blogService, BlogPost } from '@/lib/supabase'
 
-interface BlogPost {
-  id: string
-  title: string
-  excerpt: string
-  author: string
-  date: string
-  readTime: string
-  category: string
-  image: string
-  slug: string
+interface BlogGridProps {
+  selectedCategory?: string
+  searchQuery?: string
 }
 
-export function BlogGrid() {
-  const blogPosts: BlogPost[] = [
-    {
-      id: '1',
-      title: 'The Future of AI in Digital Marketing: Trends for 2024',
-      excerpt: 'Explore how artificial intelligence is revolutionizing digital marketing strategies and what businesses need to know.',
-      author: 'Sarah Chen',
-      date: '2024-01-15',
-      readTime: '8 min read',
-      category: 'AI & Technology',
-      image: '/images/blog/ai-marketing.jpg',
-      slug: 'future-ai-digital-marketing-2024'
-    },
-    {
-      id: '2',
-      title: 'SEO Best Practices: A Complete Guide for Enterprise Websites',
-      excerpt: 'Comprehensive strategies for optimizing large-scale websites and driving organic traffic growth.',
-      author: 'Emily Watson',
-      date: '2024-01-12',
-      readTime: '12 min read',
-      category: 'SEO',
-      image: '/images/blog/seo-guide.jpg',
-      slug: 'seo-best-practices-enterprise-websites'
-    },
-    {
-      id: '3',
-      title: 'Conversion Rate Optimization: 10 Proven Strategies',
-      excerpt: 'Data-driven techniques to improve your website conversion rates and maximize ROI.',
-      author: 'Marcus Rodriguez',
-      date: '2024-01-10',
-      readTime: '6 min read',
-      category: 'CRO',
-      image: '/images/blog/cro-strategies.jpg',
-      slug: 'conversion-rate-optimization-strategies'
-    },
-    {
-      id: '4',
-      title: 'Building Scalable eCommerce Platforms: Architecture Guide',
-      excerpt: 'Technical insights into creating robust, scalable eCommerce solutions that grow with your business.',
-      author: 'David Kim',
-      date: '2024-01-08',
-      readTime: '15 min read',
-      category: 'Development',
-      image: '/images/blog/ecommerce-architecture.jpg',
-      slug: 'scalable-ecommerce-platform-architecture'
-    },
-    {
-      id: '5',
-      title: 'Digital Transformation in Healthcare: Case Study',
-      excerpt: 'How we helped a healthcare provider modernize their digital presence and improve patient engagement.',
-      author: 'Sarah Chen',
-      date: '2024-01-05',
-      readTime: '10 min read',
-      category: 'Case Study',
-      image: '/images/blog/healthcare-transformation.jpg',
-      slug: 'healthcare-digital-transformation-case-study'
-    },
-    {
-      id: '6',
-      title: 'The ROI of AI Agents in Business Operations',
-      excerpt: 'Measuring the real impact of AI automation on business efficiency and cost reduction.',
-      author: 'Emily Watson',
-      date: '2024-01-03',
-      readTime: '7 min read',
-      category: 'AI & Technology',
-      image: '/images/blog/ai-roi.jpg',
-      slug: 'roi-ai-agents-business-operations'
+export function BlogGrid({ selectedCategory, searchQuery }: BlogGridProps = {}) {
+  const [posts, setPosts] = useState<BlogPost[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        setLoading(true)
+        const allPosts = await blogService.getPublished()
+        
+        // Filter posts based on category and search query
+        let filteredPosts = allPosts
+        
+        if (selectedCategory && selectedCategory !== 'All') {
+          filteredPosts = filteredPosts.filter(post => post.category === selectedCategory)
+        }
+        
+        if (searchQuery) {
+          filteredPosts = filteredPosts.filter(post =>
+            post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            post.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+          )
+        }
+        
+        setPosts(filteredPosts)
+      } catch (err) {
+        setError('Failed to load blog posts')
+        console.error('Error fetching blog posts:', err)
+      } finally {
+        setLoading(false)
+      }
     }
-  ]
+
+    fetchPosts()
+  }, [selectedCategory, searchQuery])
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      'AI & Technology': 'bg-copper-100 text-copper-700',
-      'SEO': 'bg-blue-100 text-blue-700',
-      'CRO': 'bg-emerald-100 text-emerald-700',
-      'Development': 'bg-purple-100 text-purple-700',
-      'Case Study': 'bg-orange-100 text-orange-700'
+      'SEO & Digital Marketing': 'bg-blue-100 text-blue-700',
+      'AI & Technology': 'bg-purple-100 text-purple-700',
+      'Web Development': 'bg-green-100 text-green-700',
+      'Business Strategy': 'bg-orange-100 text-orange-700',
+      'Case Studies': 'bg-red-100 text-red-700',
+      'Industry Trends': 'bg-cyan-100 text-cyan-700'
     }
     return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-700'
   }
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
+            <div className="md:flex">
+              <div className="md:w-1/3 h-64 bg-gray-200"></div>
+              <div className="md:w-2/3 p-8">
+                <div className="h-6 bg-gray-200 rounded mb-4 w-24"></div>
+                <div className="h-8 bg-gray-200 rounded mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded mb-6 w-3/4"></div>
+                <div className="flex items-center justify-between">
+                  <div className="flex space-x-6">
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+                  </div>
+                  <div className="h-4 bg-gray-200 rounded w-20"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-red-600 mb-4">{error}</div>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="bg-copper-gradient text-white px-6 py-2 rounded-lg hover:shadow-lg transition-all"
+        >
+          Try Again
+        </button>
+      </div>
+    )
+  }
+
+  if (posts.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-gray-600 mb-4">
+          {searchQuery || selectedCategory !== 'All' 
+            ? 'No posts found matching your criteria.' 
+            : 'No blog posts available.'}
+        </div>
+        {(searchQuery || selectedCategory !== 'All') && (
+          <button 
+            onClick={() => window.location.href = '/blog'} 
+            className="text-copper-700 hover:text-copper-600 font-medium"
+          >
+            View All Posts
+          </button>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
-      {blogPosts.map((post, index) => (
+      {posts.map((post, index) => (
         <motion.article
           key={post.id}
           initial={{ opacity: 0, y: 30 }}
@@ -111,10 +145,16 @@ export function BlogGrid() {
             <div className="md:flex">
               {/* Image */}
               <div className="md:w-1/3">
-                <div className="h-64 md:h-full bg-gradient-to-br from-copper-100 to-copper-200 flex items-center justify-center">
+                <div className="h-64 md:h-full bg-gradient-to-br from-copper-100 to-copper-200 flex items-center justify-center relative">
                   <div className="text-copper-600 text-6xl font-bold opacity-20">
                     {post.category.charAt(0)}
                   </div>
+                  {post.trending_score && post.trending_score > 85 && (
+                    <div className="absolute top-4 right-4 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center">
+                      <TrendingUp className="w-3 h-3 mr-1" />
+                      Trending
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -139,6 +179,22 @@ export function BlogGrid() {
                   {post.excerpt}
                 </p>
 
+                {/* Tags */}
+                {post.tags && post.tags.length > 0 && (
+                  <div className="mb-4">
+                    <div className="flex flex-wrap gap-2">
+                      {post.tags.slice(0, 4).map((tag) => (
+                        <span key={tag} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                          #{tag}
+                        </span>
+                      ))}
+                      {post.tags.length > 4 && (
+                        <span className="text-xs text-gray-500">+{post.tags.length - 4} more</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Meta Info */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-6 text-sm text-slate">
@@ -148,11 +204,15 @@ export function BlogGrid() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4" />
-                      <span>{new Date(post.date).toLocaleDateString()}</span>
+                      <span>{formatDate(post.published_at || post.created_at)}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Clock className="w-4 h-4" />
-                      <span>{post.readTime}</span>
+                      <span>{post.reading_time} min read</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Eye className="w-4 h-4" />
+                      <span>{post.views}</span>
                     </div>
                   </div>
 
@@ -171,12 +231,14 @@ export function BlogGrid() {
         </motion.article>
       ))}
 
-      {/* Load More Button */}
-      <div className="text-center pt-8">
-        <button className="magnetic-button bg-copper-gradient text-white px-8 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300">
-          Load More Articles
-        </button>
-      </div>
+      {/* Load More Button - Future enhancement */}
+      {posts.length >= 6 && (
+        <div className="text-center pt-8">
+          <button className="magnetic-button bg-copper-gradient text-white px-8 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300">
+            Load More Articles
+          </button>
+        </div>
+      )}
     </div>
   )
 }

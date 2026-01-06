@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Send, CheckCircle, AlertCircle } from 'lucide-react'
+import { Logger } from '@/lib/logger'
 
 interface FormData {
   name: string
@@ -62,43 +63,71 @@ export function ContactForm() {
     e.preventDefault()
     setStatus({ type: 'loading', message: 'Sending your message...' })
 
+    // Validate form data
+    if (!formData.name || !formData.email || !formData.service || !formData.message) {
+      setStatus({
+        type: 'error',
+        message: 'Please fill in all required fields (Name, Email, Service, and Project Details).'
+      })
+      return
+    }
+
+    Logger.info('Form submission started', { 
+      email: formData.email, 
+      service: formData.service 
+    })
+
     try {
-      // Google Apps Script Web App URL
-      const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbya7Js0rhqX5_D9GMKAobqIA3Au4MUFxHkZYorwmUule60j7rqrU1ePceybN7asoh_q/exec'
-      
-      const response = await fetch(SCRIPT_URL, {
+      // Use the API route which handles all fallbacks internally
+      const response = await fetch('/api/contact', {
         method: 'POST',
-        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
-          timestamp: new Date().toISOString(),
-          source: 'Contact Form'
+          name: formData.name,
+          email: formData.email,
+          company: formData.company,
+          phone: formData.phone,
+          service: formData.service,
+          budget: formData.budget,
+          message: formData.message
         })
       })
-      
-      setStatus({
-        type: 'success',
-        message: 'Thank you! We\'ll get back to you within 24 hours.'
+
+      const result = await response.json()
+      Logger.info('API response received', { 
+        success: result.success, 
+        method: result.method,
+        processingTime: result.processingTime 
       })
-      
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        company: '',
-        phone: '',
-        service: '',
-        budget: '',
-        message: ''
-      })
+
+      if (result.success) {
+        setStatus({
+          type: 'success',
+          message: result.message || 'Thank you! We\'ll get back to you within 24 hours.'
+        })
+        
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          company: '',
+          phone: '',
+          service: '',
+          budget: '',
+          message: ''
+        })
+
+        Logger.success('Form submitted successfully', { method: result.method })
+      } else {
+        throw new Error(result.message || 'Submission failed')
+      }
     } catch (error) {
-      console.error('Form submission error:', error)
+      Logger.error('Form submission failed', error)
       setStatus({
         type: 'error',
-        message: 'Something went wrong. Please try again or contact us directly.'
+        message: 'Unable to submit form. Please try one of the alternative contact methods below.'
       })
     }
   }
@@ -246,18 +275,30 @@ export function ContactForm() {
         {status.type !== 'idle' && (
           <div
             className={`
-              flex items-center space-x-3 p-4 rounded-xl
-              ${status.type === 'success' ? 'bg-emerald-50 text-emerald-700' : ''}
-              ${status.type === 'error' ? 'bg-red-50 text-red-700' : ''}
-              ${status.type === 'loading' ? 'bg-blue-50 text-blue-700' : ''}
+              flex items-start space-x-3 p-4 rounded-xl
+              ${status.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : ''}
+              ${status.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : ''}
+              ${status.type === 'loading' ? 'bg-blue-50 text-blue-700 border border-blue-200' : ''}
             `}
           >
-            {status.type === 'success' && <CheckCircle className="w-5 h-5" />}
-            {status.type === 'error' && <AlertCircle className="w-5 h-5" />}
+            {status.type === 'success' && <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />}
+            {status.type === 'error' && <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />}
             {status.type === 'loading' && (
-              <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0 mt-0.5" />
             )}
-            <span className="font-medium">{status.message}</span>
+            <div>
+              <p className="font-medium">{status.message}</p>
+              {status.type === 'error' && (
+                <div className="mt-2 text-sm">
+                  <p className="mb-2">Alternative contact methods:</p>
+                  <div className="space-y-1">
+                    <p>📧 Email: <a href="mailto:hello@copperscreen.com" className="underline hover:text-red-800">hello@copperscreen.com</a></p>
+                    <p>📞 Phone: <a href="tel:+15551234567" className="underline hover:text-red-800">+1 (555) 123-4567</a></p>
+                    <p>💬 Live Chat: Available 24/7 on this website</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

@@ -38,6 +38,19 @@ export const metadata: Metadata = {
   authors: [{ name: 'Copper Screen', url: 'https://copperscreen.pages.dev' }],
   creator: 'Copper Screen',
   publisher: 'Copper Screen',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
+    ],
+    other: [
+      { rel: 'mask-icon', url: '/safari-pinned-tab.svg', color: '#B87333' }
+    ]
+  },
   formatDetection: {
     email: false,
     address: false,
