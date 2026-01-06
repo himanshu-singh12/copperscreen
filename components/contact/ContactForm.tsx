@@ -78,9 +78,10 @@ export function ContactForm() {
     })
 
     try {
-      // Use the API route which handles all fallbacks internally
-      const response = await fetch('/api/contact', {
+      // Submit directly to Google Apps Script (since we're using static export)
+      const response = await fetch('https://script.google.com/macros/s/AKfycbya7Js0rhqX5_D9GMKAobqIA3Au4MUFxHkZYorwmUule60j7rqrU1ePceybN7asoh_q/exec', {
         method: 'POST',
+        mode: 'no-cors', // Required for Google Apps Script
         headers: {
           'Content-Type': 'application/json',
         },
@@ -91,43 +92,36 @@ export function ContactForm() {
           phone: formData.phone,
           service: formData.service,
           budget: formData.budget,
-          message: formData.message
+          message: formData.message,
+          timestamp: new Date().toISOString(),
+          source: 'Static Website Contact Form'
         })
       })
 
-      const result = await response.json()
-      Logger.info('API response received', { 
-        success: result.success, 
-        method: result.method,
-        processingTime: result.processingTime 
+      // Since we're using no-cors, we can't read the response
+      // Assume success if no error is thrown
+      setStatus({
+        type: 'success',
+        message: 'Thank you! We\'ve received your message and will get back to you within 24 hours.'
+      })
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        company: '',
+        phone: '',
+        service: '',
+        budget: '',
+        message: ''
       })
 
-      if (result.success) {
-        setStatus({
-          type: 'success',
-          message: result.message || 'Thank you! We\'ll get back to you within 24 hours.'
-        })
-        
-        // Reset form
-        setFormData({
-          name: '',
-          email: '',
-          company: '',
-          phone: '',
-          service: '',
-          budget: '',
-          message: ''
-        })
-
-        Logger.success('Form submitted successfully', { method: result.method })
-      } else {
-        throw new Error(result.message || 'Submission failed')
-      }
+      Logger.success('Form submitted successfully to Google Apps Script')
     } catch (error) {
       Logger.error('Form submission failed', error)
       setStatus({
         type: 'error',
-        message: 'Unable to submit form. Please try one of the alternative contact methods below.'
+        message: 'Unable to submit form. Please email us directly at hello@copperscreen.com or call +1 (555) 123-4567.'
       })
     }
   }

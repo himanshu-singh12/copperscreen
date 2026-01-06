@@ -2,11 +2,10 @@ import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { Calendar, Clock, Eye, User, ArrowLeft, Share2 } from 'lucide-react'
 import Link from 'next/link'
-import { blogService } from '@/lib/supabase'
-import { renderMarkdownToHTML, sanitizeHTML } from '@/lib/markdown-renderer'
+import { staticBlogPosts } from '@/lib/static-data'
 
-// Configure for Edge Runtime (required for Cloudflare Pages)
-export const runtime = 'edge'
+// Configure for static export
+export const dynamic = 'force-static'
 
 interface BlogPostPageProps {
   params: Promise<{
@@ -14,47 +13,48 @@ interface BlogPostPageProps {
   }>
 }
 
+export async function generateStaticParams() {
+  return staticBlogPosts.map((post) => ({
+    slug: post.slug,
+  }))
+}
+
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-  try {
-    const { slug } = await params
-    const post = await blogService.getBySlug(slug)
-    
-    return {
-      title: post.seo_title || post.title,
-      description: post.seo_description || post.excerpt,
-      keywords: post.tags?.join(', '),
-      openGraph: {
-        title: post.title,
-        description: post.excerpt || '',
-        type: 'article',
-        publishedTime: post.published_at || post.created_at,
-        authors: [post.author],
-        tags: post.tags,
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: post.title,
-        description: post.excerpt || '',
-      }
-    }
-  } catch (error) {
+  const { slug } = await params
+  const post = staticBlogPosts.find(p => p.slug === slug)
+  
+  if (!post) {
     return {
       title: 'Blog Post Not Found',
       description: 'The requested blog post could not be found.'
+    }
+  }
+  
+  return {
+    title: post.seo_title || post.title,
+    description: post.seo_description || post.excerpt,
+    keywords: post.tags?.join(', '),
+    openGraph: {
+      title: post.title,
+      description: post.excerpt || '',
+      type: 'article',
+      publishedTime: post.published_at || post.created_at,
+      authors: [post.author],
+      tags: post.tags,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt || '',
     }
   }
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params
-  let post
-  
-  try {
-    post = await blogService.getBySlug(slug)
-    
-    // Increment view count
-    await blogService.incrementViews(post.id)
-  } catch (error) {
+  const post = staticBlogPosts.find(p => p.slug === slug)
+
+  if (!post) {
     notFound()
   }
 
@@ -126,7 +126,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </div>
             <div className="flex items-center">
               <Eye className="w-4 h-4 mr-2" />
-              <span>{post.views + 1} views</span>
+              <span>{post.views} views</span>
             </div>
           </div>
 
@@ -140,84 +140,31 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               ))}
             </div>
           )}
-
-          {/* Share Button */}
-          <div className="flex items-center justify-between border-t pt-6">
-            <div className="text-sm text-gray-500">
-              {post.ai_generated && (
-                <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs mr-2">
-                  AI-Enhanced Content
-                </span>
-              )}
-            </div>
-            <button className="flex items-center space-x-2 text-copper-600 hover:text-copper-700 transition-colors">
-              <Share2 className="w-4 h-4" />
-              <span>Share</span>
-            </button>
-          </div>
         </div>
-      </div>
-
-      {/* Featured Image */}
-      <div className="h-64 md:h-96 bg-gradient-to-br from-copper-100 to-copper-200 relative overflow-hidden">
-        <div className="absolute inset-0 bg-copper-gradient opacity-10"></div>
-        {/* AI Generated Image Placeholder */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-copper-700 text-6xl md:text-8xl font-bold opacity-30 mb-4">
-              {post.category.charAt(0)}
-            </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 text-sm text-gray-700 max-w-md mx-auto">
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>AI-Generated Visual Content</span>
-              </div>
-              <p className="text-xs mt-1 opacity-75">
-                Professional illustration representing: {post.title.substring(0, 50)}...
-              </p>
-            </div>
-          </div>
-        </div>
-        {/* Decorative Elements */}
-        <div className="absolute top-4 left-4 w-16 h-16 bg-white/20 rounded-full blur-xl"></div>
-        <div className="absolute bottom-4 right-4 w-24 h-24 bg-copper-300/30 rounded-full blur-2xl"></div>
-        <div className="absolute top-1/2 left-1/3 w-8 h-8 bg-electric/40 rounded-full blur-lg"></div>
       </div>
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
+        <div className="bg-white rounded-lg shadow-sm p-8">
           <div className="prose prose-lg max-w-none">
-            {/* Edge Runtime compatible markdown renderer */}
-            <div 
-              className="text-gray-700 leading-relaxed space-y-4"
-              dangerouslySetInnerHTML={{ 
-                __html: sanitizeHTML(renderMarkdownToHTML(post.content))
-              }}
-            />
+            <div dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br>').replace(/#{1,6}\s/g, '<h2>').replace(/<h2>/g, '</p><h2 class="text-2xl font-bold mt-8 mb-4">').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
           </div>
         </div>
 
         {/* Call to Action */}
-        <div className="mt-12 bg-copper-gradient rounded-lg p-8 text-white text-center">
-          <h3 className="text-2xl font-bold mb-4">Ready to Transform Your Business?</h3>
-          <p className="text-lg mb-6 opacity-90">
-            Get expert guidance from Copper Screen's digital transformation specialists.
+        <div className="mt-12 bg-copper-50 rounded-lg p-8 text-center">
+          <h3 className="text-2xl font-bold text-charcoal mb-4">
+            Ready to Transform Your Business?
+          </h3>
+          <p className="text-slate mb-6">
+            Let's discuss how our expertise can drive your digital transformation.
           </p>
           <Link
             href="/contact"
-            className="inline-block bg-white text-copper-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+            className="inline-flex items-center bg-copper-gradient text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
           >
-            Start Your Project
+            Get Started Today
           </Link>
-        </div>
-
-        {/* Related Posts Section - Future Enhancement */}
-        <div className="mt-12">
-          <h3 className="text-2xl font-bold text-charcoal mb-6">Related Articles</h3>
-          <div className="text-center py-8 text-gray-500">
-            <p>Related articles will be displayed here based on category and tags.</p>
-          </div>
         </div>
       </div>
     </div>

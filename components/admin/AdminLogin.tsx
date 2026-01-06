@@ -32,11 +32,11 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
     try {
       const result = await AdminAuthService.authenticate(credentials.username, credentials.password)
       
-      if (result.success && result.user) {
-        AdminSessionService.setSession(result.user)
-        onLogin(true, result.user)
+      if (result) {
+        AdminSessionService.setSession(result)
+        onLogin(true, result)
       } else {
-        setError(result.error || 'Invalid username or password')
+        setError('Invalid username or password')
         onLogin(false)
       }
     } catch (error) {

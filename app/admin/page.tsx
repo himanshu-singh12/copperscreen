@@ -13,9 +13,9 @@ export default function AdminPage() {
   useEffect(() => {
     // Check if user is already authenticated
     const session = AdminSessionService.getSession()
-    if (session?.isValid) {
+    if (session) {
       setIsAuthenticated(true)
-      setCurrentUser(session.user)
+      setCurrentUser(session)
     }
     setIsLoading(false)
   }, [])

@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next'
 import { SERVICES, INDUSTRIES } from '@/lib/constants'
 
+export const dynamic = 'force-static'
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://copperscreen.com'
   

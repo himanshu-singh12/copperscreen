@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Calendar, Clock, ArrowRight, User, Eye, TrendingUp } from 'lucide-react'
-import { blogService, BlogPost } from '@/lib/supabase'
+import { staticBlogPosts, type BlogPost } from '@/lib/static-data'
 
 interface BlogGridProps {
   selectedCategory?: string
@@ -20,10 +20,9 @@ export function BlogGrid({ selectedCategory, searchQuery }: BlogGridProps = {}) 
     async function fetchPosts() {
       try {
         setLoading(true)
-        const allPosts = await blogService.getPublished()
         
-        // Filter posts based on category and search query
-        let filteredPosts = allPosts
+        // Use static posts
+        let filteredPosts = staticBlogPosts.filter(post => post.published)
         
         if (selectedCategory && selectedCategory !== 'All') {
           filteredPosts = filteredPosts.filter(post => post.category === selectedCategory)
@@ -204,7 +203,7 @@ export function BlogGrid({ selectedCategory, searchQuery }: BlogGridProps = {}) 
                     </div>
                     <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4" />
-                      <span>{formatDate(post.published_at || post.created_at)}</span>
+                      <span>{formatDate(post.published_at || post.created_at || new Date().toISOString())}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Clock className="w-4 h-4" />
