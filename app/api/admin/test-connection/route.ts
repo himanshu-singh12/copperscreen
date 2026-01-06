@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { leadService, blogService, supabase } from '@/lib/supabase'
 
+// Configure for Edge Runtime (required for Cloudflare Pages)
+export const runtime = 'edge'
+
 export async function GET(request: NextRequest) {
   const results = {
     timestamp: new Date().toISOString(),

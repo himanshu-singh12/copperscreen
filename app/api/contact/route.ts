@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { leadService } from '@/lib/supabase'
 import { Logger } from '@/lib/logger'
 
+// Configure for Edge Runtime (required for Cloudflare Pages)
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
   

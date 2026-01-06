@@ -5,6 +5,9 @@ import Link from 'next/link'
 import { blogService } from '@/lib/supabase'
 import ReactMarkdown from 'react-markdown'
 
+// Using Node.js runtime for ReactMarkdown compatibility
+// Blog pages can use Node.js runtime while API routes use Edge Runtime
+
 interface BlogPostPageProps {
   params: Promise<{
     slug: string
